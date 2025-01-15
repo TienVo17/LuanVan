@@ -18,6 +18,13 @@ interface NavbarProps {
 
 
 function Navbar({ tuKhoaTimKiem, setTuKhoaTimKiem }: NavbarProps) {
+  const categories = [
+    { id: 1, name: "Khoa Học" },
+    { id: 2, name: "Tiểu Thuyết" },
+    { id: 3, name: "Tâm Lý Học" },
+    { id: 4, name: "Lịch Sử" },
+    { id: 5, name: "Huyền Bí" }
+  ];
   const [tuKhoaTamThoi, setTuKhoaTamThoi] = useState("");
   const [soLuongGioHang, setSoLuongGioHang] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -130,11 +137,16 @@ function Navbar({ tuKhoaTimKiem, setTuKhoaTimKiem }: NavbarProps) {
                 Thể loại sách
               </NavLink>
               <ul className="dropdown-menu" aria-labelledby="navbarDropdown1">
-                <li>
-                  <NavLink className="dropdown-item" to="/1">
-                    Thể loại 1
-                  </NavLink>
-                </li>
+                {categories.map(category => (
+                  <li key={category.id}>
+                    <NavLink 
+                      className="dropdown-item" 
+                      to={`/the-loai/${category.id}`}
+                    >
+                      {category.name}
+                    </NavLink>
+                  </li>
+                ))}
               </ul>
             </li>
             <li className="nav-item">

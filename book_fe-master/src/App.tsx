@@ -22,9 +22,7 @@ import AdminRoute from "./layouts/admin/components/route/Adminroute";
 import DatHangNhanh from "./layouts/products/DatHangNhanh";
 import ThongTinTaiKhoan from './layouts/user/ThongTinTaiKhoan';
 import SalesPolicy from './layouts/policy/SalesPolicy';
-
-// import { ToastContainer } from 'react-toastify';
-
+import CategoryPage from './layouts/utils/CategoryPage';
 
 function App() {
   const [tuKhoaTimKiem, setTuKhoaTimKiem] = useState("");
@@ -59,6 +57,7 @@ function App() {
               <Route path="/dat-hang-nhanh" element={<DatHangNhanh />} />
               <Route path="/tai-khoan/:maNguoiDung" element={<ThongTinTaiKhoan />} />
               <Route path="/sales-policy" element={<SalesPolicy />} />
+              <Route path='/the-loai/:categoryId' element={<CategoryPage />} />
             </Routes>
             <Footer />
           </>
@@ -79,6 +78,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
 
 export default App;
