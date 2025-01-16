@@ -26,9 +26,25 @@ const DatHangNhanh: React.FC = () => {
         diaChiNhanHang: "",
     });
 
+  
+    const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        
+        if (value === '' || (/^\d+$/.test(value) && value.length <= 10)) {
+            setFormData({ ...formData, soDienThoai: value });
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+
+     
+        if (!/^[0-9]{10}$/.test(formData.soDienThoai)) {
+            toast.error("Số điện thoại phải có 10 chữ số!");
+            setIsLoading(false);
+            return;
+        }
 
         if (!formData.hoTen || !formData.soDienThoai || !formData.diaChiNhanHang) {
             toast.error("Vui lòng điền đầy đủ thông tin");
@@ -155,14 +171,14 @@ const DatHangNhanh: React.FC = () => {
                                             <i className="bi bi-phone"></i>
                                         </span>
                                         <input
-                                            type="number"
+                                            type="tel"
                                             className="form-control py-2"
                                             value={formData.soDienThoai}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, soDienThoai: e.target.value })
-                                            }
+                                            onChange={handlePhoneNumberChange}
                                             required
-                                            placeholder="Nhập số điện thoại"
+                                            placeholder="Nhập số điện thoại (10 số)"
+                                            pattern="[0-9]{10}"
+                                            maxLength={10}
                                         />
                                     </div>
                                 </div>

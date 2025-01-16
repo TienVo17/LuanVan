@@ -2,21 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import SachModel from '../../models/SachModel';
 import SachProps from '../products/components/SachProps';
+import { PhanTrang } from '../utils/PhanTrang';
+import { DANH_SACH_THE_LOAI } from '../../constants/TheLoai';
 
 const CategoryPage: React.FC = () => {
     const [sachList, setSachList] = useState<SachModel[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [httpError, setHttpError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sachPerPage] = useState(8);
-    const [totalSach, setTotalSach] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
+    const [trangHienTai, setTrangHienTai] = useState(1);
+    const [tongSoTrang, setTongSoTrang] = useState(0);
     const { categoryId } = useParams();
+    const tenTheLoai = DANH_SACH_THE_LOAI[categoryId as keyof typeof DANH_SACH_THE_LOAI] || 'Không xác định';
 
     useEffect(() => {
         const fetchBooks = async () => {
             try {
-                const baseUrl = `http://localhost:8080/api/sach/the-loai/${categoryId}?page=${currentPage-1}&size=${sachPerPage}`;
+                const baseUrl = `http://localhost:8080/api/sach/the-loai/${categoryId}?page=${trangHienTai-1}&size=8`;
                 const response = await fetch(baseUrl);
 
                 if (!response.ok) {
@@ -24,8 +25,6 @@ const CategoryPage: React.FC = () => {
                 }
 
                 const responseJson = await response.json();
-                
-                // Updated parsing logic to handle direct array response
                 const responseData = responseJson.content || [];
                 const loadedBooks: SachModel[] = responseData.map((book: any) => ({
                     maSach: book.maSach,
@@ -39,8 +38,7 @@ const CategoryPage: React.FC = () => {
                 }));
 
                 setSachList(loadedBooks);
-                setTotalPages(responseJson.totalPages);
-                setTotalSach(responseJson.totalElements);
+                setTongSoTrang(responseJson.totalPages);
                 setIsLoading(false);
             } catch (error: any) {
                 setIsLoading(false);
@@ -49,7 +47,7 @@ const CategoryPage: React.FC = () => {
         };
 
         fetchBooks();
-    }, [currentPage, categoryId]);
+    }, [trangHienTai, categoryId]);
 
     if (isLoading) {
         return (
@@ -71,47 +69,36 @@ const CategoryPage: React.FC = () => {
         );
     }
 
-    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+    const phanTrang = (trang: number) => setTrangHienTai(trang);
 
     return (
         <div className='container'>
             <div className='row mt-4 mb-4'>
-                <h3>Sách theo thể loại</h3>
+                <div className='col-12 text-center'>
+                    <div className='position-relative d-inline-block'>
+                        <h3 className='fw-bold display-6'>
+
+                            <span className='text-dark'>『</span> 
+                            <span className='text-dark'>{tenTheLoai}</span> 
+                            <span className='text-dark'>』</span>
+                        </h3>
+                        <div className='position-absolute start-50 translate-middle-x' 
+                             style={{bottom: '-10px', width: '80px', height: '4px', backgroundColor: '#212529'}}></div>
+                    </div>
+                </div>
             </div>
             <div className='row'>
                 {sachList.map(sach => (
                     <SachProps key={sach.maSach} sach={sach} />
                 ))}
             </div>
-            {totalPages > 1 && (
-                <div className='row mt-4 mb-4'>
-                    <nav aria-label='...'>
-                        <ul className='pagination pagination-lg justify-content-center'>
-                            <li className='page-item' onClick={() => paginate(1)}>
-                                <button className='page-link'>First</button>
-                            </li>
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                <button className='page-link' onClick={() => paginate(currentPage - 1)}>
-                                    Previous
-                                </button>
-                            </li>
-                            <li className='page-item'>
-                                <button className='page-link disabled bg-dark text-white'>
-                                    Page {currentPage} of {totalPages}
-                                </button>
-                            </li>
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                <button className='page-link' onClick={() => paginate(currentPage + 1)}>
-                                    Next
-                                </button>
-                            </li>
-                            <li className='page-item' onClick={() => paginate(totalPages)}>
-                                <button className='page-link'>Last</button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            )}
+            <div className='row mt-4 '>
+            <PhanTrang
+                trangHienTai={trangHienTai}
+                tongSoTrang={tongSoTrang}
+                phanTrang={phanTrang}
+            />
+            </div>
         </div>
     );
 };

@@ -59,29 +59,43 @@ const SachProps: React.FC<SachPropsInterface> = (props) => {
 
   return (
     <div className="col-md-3 mt-2">
-      <div className="card">
-        <Link to={`/sach/${props.sach.maSach}`}>
-          <img
-            src={duLieuAnh}
-            className="card-img-top"
-            alt={props.sach.tenSach}
-            style={{ height: "300px", objectFit: "cover" }}
-          />
-        </Link>
-        <div className="card-body">
-          <Link
-            to={`/sach/${props.sach.maSach}`}
-            style={{ textDecoration: "none" }}
-          >
-            <h5 className="card-title">{props.sach.tenSach}</h5>
+      <div className="card h-100 shadow">
+        <div className="image-container" style={{ height: "300px" }}>
+          <Link to={`/sach/${props.sach.maSach}`}>
+            <img
+              src={duLieuAnh}
+              className="card-img-top img-fluid"
+              alt={props.sach.tenSach}
+              style={{ 
+                height: "100%", 
+                objectFit: "contain",
+                padding: "10px"
+              }}
+            />
           </Link>
-          <div className="price row">
-            <span className="original-price col-6 text-end">
-              <del>{dinhDangSo(props.sach.giaNiemYet)}</del>
-            </span>
-            <span className="discounted-price col-6 text-end">
-              <strong>{dinhDangSo(props.sach.giaBan)} đ</strong>
-            </span>
+        </div>
+        <div className="card-body d-flex flex-column justify-content-between">
+          <div>
+            <Link
+              to={`/sach/${props.sach.maSach}`}
+              style={{ textDecoration: "none" }}
+            >
+              <h5 className="card-title" style={{ 
+                height: "48px", 
+                overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: "2",
+                WebkitBoxOrient: "vertical"
+              }}>{props.sach.tenSach}</h5>
+            </Link>
+            <div className="price row">
+              <span className="original-price col-6 text-end">
+                <del>{dinhDangSo(props.sach.giaNiemYet)}</del>
+              </span>
+              <span className="discounted-price col-6 text-end">
+                <strong>{dinhDangSo(props.sach.giaBan)} đ</strong>
+              </span>
+            </div>
           </div>
           <div className="row mt-2" role="group">
             <div className="col-6">
@@ -89,12 +103,12 @@ const SachProps: React.FC<SachPropsInterface> = (props) => {
                 props.sach.trungBinhXepHang ? props.sach.trungBinhXepHang : 0
               )}
             </div>
-            <div className="col-6 text-end">
-              <a href="#" className="btn btn-secondary btn-block me-2">
+            <div className="col-6 text-end d-flex justify-content-end">
+              <button className="btn btn-secondary btn-sm me-2">
                 <i className="fas fa-heart"></i>
-              </a>
+              </button>
               <button 
-                className="btn btn-danger btn-block"
+                className="btn btn-danger btn-sm"
                 onClick={() => themVaoGioHang(props.sach)}
               >
                 <i className="fas fa-shopping-cart"></i>
