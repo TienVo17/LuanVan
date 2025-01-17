@@ -6,6 +6,7 @@ import { PhanTrang } from '../../../utils/PhanTrang';
 import NguoiDungModel from "../../../../models/NguoiDungModel";
 import {findAll} from "../../../../api/UserApi";
 import { de } from 'date-fns/locale';
+import { toast } from 'react-toastify';
 
 export default function UserComponent() {
   const [userList, setUserList] = useState<NguoiDungModel[]>([]);
@@ -17,7 +18,9 @@ export default function UserComponent() {
   const [userId, setUserId] = useState<number>();
   const [nguoiDung, setNguoiDung] = useState<string>();
   const [quyenList, setQuyenList] = useState<any[]>([]);
-  const [selectedQuyen, setSelectedQuyen] = useState<any[]>([]);
+  const [selectedQuyen, setSelectedQuyen] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalError, setModalError] = useState<string>('');
   const navigate = useNavigate();
 
 
@@ -66,18 +69,15 @@ export default function UserComponent() {
 
   const handleClose = ()=>{
     setShowModal(false);
-    setSelectedQuyen([])
+    setSelectedQuyen(null);
   }
 
  const handleCheckboxChange = (maQuyen:any) => {
 
-    if (selectedQuyen.includes(maQuyen)) {
-      // Nếu đã chọn, thì bỏ chọn (xóa khỏi danh sách)
-      setSelectedQuyen(selectedQuyen.filter((id) => id !== maQuyen));
+    if (selectedQuyen === maQuyen) {
+      setSelectedQuyen(null);
     } else {
-      // Nếu chưa chọn, thì thêm vào danh sách
-      setSelectedQuyen([...selectedQuyen, maQuyen]);
-  
+      setSelectedQuyen(maQuyen);
     }
     
   };
@@ -146,70 +146,129 @@ export default function UserComponent() {
       />
       {/* Modal */}
       {showModal && (
-        <div className="modal" style={{ display: 'block' }} role="dialog">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Phân quyền cho {nguoiDung}</h5>
-              </div>
-              <div className="modal-body">
-                <ul>
-                  {quyenList.map((item) => (
-                    <li key={item?.maQuyen}>
-                      <label>
+        <>
+          <div className="modal-backdrop fade show"></div>
+          <div className="modal fade show" 
+               style={{ display: 'block' }} 
+               tabIndex={-1}
+               aria-modal="true"
+               role="dialog">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 shadow">
+                <div className="modal-header bg-primary text-white">
+                  <h5 className="modal-title">
+                    <i className="fas fa-user-tag me-2"></i>
+                    Phân quyền cho {nguoiDung}
+                  </h5>
+                  <button type="button" 
+                          className="btn-close btn-close-white" 
+                          onClick={handleClose}
+                          aria-label="Close">
+                  </button>
+                </div>
+                <div className="modal-body p-4">
+                  {modalError && (
+                    <div className="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                      <i className="fas fa-exclamation-circle me-2"></i>
+                      <div>{modalError}</div>
+                    </div>
+                  )}
+                  <div className="list-group">
+                    {quyenList.map((item) => (
+                      <label key={item?.maQuyen} 
+                             className={`list-group-item list-group-item-action d-flex align-items-center ${
+                               selectedQuyen === item.maQuyen ? 'active' : ''
+                             }`}>
                         <input
-                          type="checkbox"
+                          type="radio"
+                          name="quyen"
                           value={item.maQuyen}
-                          checked={selectedQuyen.includes(item.maQuyen)}
+                          checked={selectedQuyen === item.maQuyen}
                           onChange={() => handleCheckboxChange(item.maQuyen)}
+                          className="form-check-input me-3"
                         />
-                        {item.tenQuyen}
+                        <span className="flex-grow-1">
+                          <i className={`fas fa-${item.maQuyen === 1 ? 'user-shield' : 'user'} me-2`}></i>
+                          {item.tenQuyen}
+                        </span>
                       </label>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-primary" onClick={()=>{
-                    const body = {
-                        userId: userId,
-                        quyenIds:selectedQuyen
-                    };
-                    fetch("http://localhost:8080/api/admin/user/phan-quyen", {
-                      method: "POST",
-                      body: JSON.stringify(body),
-                      headers: {
-                          "Authorization": `Bearer ${localStorage.getItem('jwt')}`,
-                          'Content-Type': 'application/json' 
-                      },})
-                      .then( (response) => {
-                        if(response.status === 200){
-                          alert("Thêm quyền thành công");
-                          setShowModal(false);
+                    ))}
+                  </div>
+                </div>
+                <div className="modal-footer border-top">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                  >
+                    <i className="fas fa-times me-2"></i>
+                    Đóng
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    disabled={isSubmitting || selectedQuyen === null}
+                    onClick={async () => {
+                      try {
+                        setIsSubmitting(true);
+                        setModalError('');
+                        
+                        if (!userId) {
+                          throw new Error('Không tìm thấy người dùng');
                         }
-                      })
-                      
-                      .catch((error) => {
-                          console.error("Lỗi:", error);
-                          
-                      }); 
-                }}>
-                  Lưu
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleClose}
-                >
-                 Đóng
-                </button>
+                
+                        const body = {
+                          userId: userId,
+                          quyenIds: selectedQuyen ? [selectedQuyen] : [] // Đóng gói single value vào array
+                        };
+                
+                        const response = await fetch("http://localhost:8080/api/admin/user/phan-quyen", {
+                          method: "POST",
+                          body: JSON.stringify(body),
+                          headers: {
+                            "Authorization": `Bearer ${localStorage.getItem('jwt')}`,
+                            'Content-Type': 'application/json'
+                          },
+                        });
+                
+                        if (!response.ok) {
+                          throw new Error('Có lỗi xảy ra khi phân quyền');
+                        }
+                
+                        toast.success("Phân quyền thành công!");
+                        setShowModal(false);
+                        setSelectedQuyen(null);
+                        
+                        // Refresh data
+                        setTrangHienTai(1);
+                      } catch (error: any) {
+                        setModalError(error.message);
+                      } finally {
+                        setIsSubmitting(false);
+                      }
+                    }}
+                  >
+                    {isSubmitting ? (
+                      <span>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Đang xử lý...
+                      </span>
+                    ) : (
+                      <>
+                        <i className="fas fa-save me-2"></i>
+                        Lưu
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
 }
 
-export {}; 
+export {};
