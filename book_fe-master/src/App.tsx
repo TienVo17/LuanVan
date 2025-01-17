@@ -22,7 +22,8 @@ import AdminRoute from "./layouts/admin/components/route/Adminroute";
 import DatHangNhanh from "./layouts/products/DatHangNhanh";
 import ThongTinTaiKhoan from './layouts/user/ThongTinTaiKhoan';
 import SalesPolicy from './layouts/policy/SalesPolicy';
-import CategoryPage from './layouts/utils/CategoryPage';
+import CategoryPage from "./layouts/products/CategoryPage";
+
 
 function App() {
   const [tuKhoaTimKiem, setTuKhoaTimKiem] = useState("");

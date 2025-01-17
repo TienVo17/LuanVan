@@ -155,7 +155,7 @@ public class DonHangController {
         }
         return "<html>" +
                 "<body>" +
-                "<h2 style=\"border-bottom: 2px solid #333; padding-bottom: 10px;\">Thông báo Đơn hàng của bạn</h2>" +
+                "<h2 style=\"border-bottom: 2px solid #333; padding-bottom: 10px; color: red;\">Thông báo Đơn hàng của bạn</h2>" +
                 "<p>Chào " + customerName + ",</p>" +
                 "<p>Cảm ơn bạn đã đặt hàng tại chúng tôi! Dưới đây là thông tin chi tiết về đơn hàng của bạn:</p>" +
                 "<p><b>Mã Đơn Hàng : </b>" + orderId + "</p>" +
@@ -177,9 +177,6 @@ public class DonHangController {
                 chiTienDonHang +
                 "</tbody>" +
                 "</table>" +
-
-                "<p style=\"color:red; border-top: 2px solid red; padding-top: 10px;\"><b>Tổng tiền: " + tongTien + "</b></p>" +
-                "<p><b>Địa chỉ nhận hàng: " + diaChi + "</b></p>" +
 
                 "<p style=\"border-top: 1px solid #ddd; padding-top: 10px;\">Đơn hàng của bạn sẽ được xử lý trong vòng 24 giờ. Chúng tôi sẽ thông báo khi hàng hóa được gửi đi.</p>" +
                 "<p style=\"border-top: 1px solid #ddd; padding-top: 10px;\">Trân trọng cảm ơn!</p>" +
